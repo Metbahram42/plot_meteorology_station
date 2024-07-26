@@ -1,0 +1,48 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+
+# Load the data from the sample CSV file
+data = pd.read_csv('C:\Users\TAK\Desktop\sample data\front_data.csv')
+
+# Extract necessary data
+latitude = data['latitude']
+longitude = data['longitude']
+temperature = data['temperature']
+pressure = data['pressure']
+wind_speed = data['wind_speed']
+wind_direction = data['wind_direction']
+
+# Calculate wind components for barbs
+wind_u = wind_speed * np.cos(np.deg2rad(wind_direction))
+wind_v = wind_speed * np.sin(np.deg2rad(wind_direction))
+
+# Create a figure and axis with Cartopy
+fig = plt.figure(figsize=(10, 7))
+ax = plt.axes(projection=ccrs.PlateCarree())
+
+# Set the extent to focus on Iran
+ax.set_extent([44, 64, 25, 40], crs=ccrs.PlateCarree())
+
+# Add coastlines and borders
+ax.add_feature(cfeature.COASTLINE)
+ax.add_feature(cfeature.BORDERS, linestyle=':')
+ax.add_feature(cfeature.LAND, facecolor='lightgray')
+ax.add_feature(cfeature.OCEAN, facecolor='lightblue')
+
+# Plot the station data
+sc = ax.scatter(longitude, latitude, c=temperature, cmap='coolwarm', s=50, edgecolor='k', transform=ccrs.PlateCarree())
+plt.colorbar(sc, label='Temperature (°C)')
+
+# Add wind barbs
+ax.barbs(longitude, latitude, wind_u, wind_v, transform=ccrs.PlateCarree(), length=6)
+
+# Add title and labels
+plt.title('Weather Data Visualization for Iran')
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+
+# Show the plot
+plt.show()
